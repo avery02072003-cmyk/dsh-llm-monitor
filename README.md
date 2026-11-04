@@ -83,7 +83,7 @@ Open any conversation → click the sidebar button at the top right → pick the
 
 Install [dsh-compaction-outsource](https://github.com/avery02072003-cmyk/dsh-compaction-outsource) as well and the tab gets an **Outsourcing** section: switch the helper AI, pick its model and effort, and see which AI wrote the last compaction. It is **off by default**. The server reads and writes the same data folder as that plugin (`--outsource-dir`, default `~/.dsh/outsource`). Changing the setting from a browser is only accepted from the same host as the server.
 
-The model box is a drop-down that always lists every choice, each with a short description (for example `gemini-3.8-flash-low — fastest, lightest`, `haiku — Haiku 5.5 …`), plus **Custom…** for any other id. The agy list is what `agy models` prints; the Claude entries `haiku` / `sonnet` / `opus` are aliases for the newest model of that family.
+The model box is a drop-down that always lists every choice, each with a short description (for example `gemini-3.8-flash-low — fastest, lightest`, `Haiku — Newest Haiku: cheapest`), plus **Custom…** for any other id. The agy list is what `agy models` prints. The Claude entries (Haiku / Sonnet / Opus) and DeepSeek Flash are shown by name and marked "newest" instead of a version number, because they always point to the newest model of that family, so an update never leaves a stale number on screen.
 
 The tab follows your browser language (繁體中文 / 简体中文 / English) and has a language picker at the bottom. To add a language, copy the `en` table at the top of `lib/client.js`, translate it and register it in `LANG_NAMES`.
 
@@ -170,7 +170,7 @@ GPU 和記憶體是你這台電腦的數字，只對**本地**模型有意義；
 
 再安裝 [dsh-compaction-outsource](https://github.com/avery02072003-cmyk/dsh-compaction-outsource)，分頁就會多出**外包**區塊：切換幫忙的 AI、選模型與思考強度，並看到最近一次壓縮是誰寫的。**預設關閉。** 服務與該插件讀寫同一個資料夾（`--outsource-dir`，預設 `~/.dsh/outsource`）。從瀏覽器改設定時，只接受與服務同一主機的來源。
 
-模型欄是一個永遠列出全部選項的下拉選單，每項附簡短說明（例如 `gemini-3.8-flash-low — 最快、最輕量`、`haiku — Haiku 5.5…`），另有「**自訂…**」可填任何其他代號。agy 的清單就是 `agy models` 印出來的；Claude 的 `haiku` / `sonnet` / `opus` 是別名，指向該系列最新的模型。
+模型欄是一個永遠列出全部選項的下拉選單，每項附簡短說明（例如 `gemini-3.8-flash-low — 最快、最輕量`、`Haiku — 最新的 Haiku：最省`），另有「**自訂…**」可填任何其他代號。agy 的清單就是 `agy models` 印出來的。Claude（Haiku／Sonnet／Opus）與 DeepSeek Flash 只顯示名稱並標註「最新」、不寫版本號，因為它們永遠指向該系列最新的模型，更新後畫面上就不會留著過時的數字。
 
 分頁會跟隨瀏覽器語言（繁體中文／简体中文／English），底部有語言選單。要新增語言：複製 `lib/client.js` 開頭的 `en` 表、翻譯後登記到 `LANG_NAMES`。
 
