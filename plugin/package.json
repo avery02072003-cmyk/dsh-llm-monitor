@@ -1,0 +1,37 @@
+{
+  "name": "dsh-llm-monitor",
+  "version": "0.1.0",
+  "description": "Right-sidebar tab for DeepSeek Harness (DSH): local llama-server speed, GPU, memory and DeepSeek account balance.",
+  "type": "module",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib"
+  ],
+  "dsh": {
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-sidebar-right",
+        "@deepseek-ai/dsh-api-remotes"
+      ]
+    }
+  },
+  "author": "avery02072003-cmyk",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/avery02072003-cmyk/dsh-llm-monitor.git"
+  },
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "llama.cpp",
+    "monitor",
+    "plugin"
+  ]
+}
