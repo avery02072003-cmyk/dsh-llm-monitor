@@ -21,7 +21,7 @@ BACKENDS = ('agy', 'deepseek', 'claude', 'codex')
 EFFORTS = {
     'deepseek': ('off', 'low', 'high', 'max'),
     'claude': ('low', 'medium', 'high', 'xhigh', 'max'),
-    'codex': ('minimal', 'low', 'medium', 'high'),
+    'codex': ('low', 'medium', 'high', 'xhigh'),
 }
 MODEL_RE = re.compile(r'^[\w.:/-]{1,80}$')
 
