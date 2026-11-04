@@ -16,6 +16,7 @@ English | [繁體中文](#繁體中文)
 | GPU | utilization, VRAM, temperature, power | `nvidia-smi` |
 | Memory | RAM, committed memory (RAM + page file) | OS |
 | DeepSeek account | balance, and the change since you opened the tab | DSH's own account service (`getBalance`) |
+| Outsourcing | choose which AI (agy / DeepSeek / Claude / Codex), its model and reasoning effort writes your compaction checkpoint; usage and who wrote the last one | companion plugin [dsh-compaction-outsource](https://github.com/avery02072003-cmyk/dsh-compaction-outsource) |
 
 Generation / prompt speed and KV-cache usage need `llama-server` to be started with `--metrics`.
 GPU and memory numbers describe your machine, so they only make sense for a **local** model; the DeepSeek (cloud) model has no GPU/RAM to show.
@@ -77,6 +78,10 @@ Open any conversation → click the sidebar button at the top right → pick the
    ```
 4. Restart DSH.
 </details>
+
+## Outsourcing section (optional)
+
+Install [dsh-compaction-outsource](https://github.com/avery02072003-cmyk/dsh-compaction-outsource) as well and the tab gets an **Outsourcing** section: switch the helper AI, pick its model and effort, and see which AI wrote the last compaction. It is **off by default**. The server reads and writes the same data folder as that plugin (`--outsource-dir`, default `~/.dsh/outsource`). Changing the setting from a browser is only accepted from the same host as the server.
 
 ## Uninstall
 

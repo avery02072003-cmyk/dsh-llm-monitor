@@ -22,11 +22,19 @@ import sys
 import threading
 import time
 import urllib.request
+from urllib.parse import urlparse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+try:
+    from outsource_panel import Panel
+except ImportError:  # the outsourcing section is optional
+    Panel = None
+
 TTL = 1.0
 LLAMA = 'http://127.0.0.1:8000'
+PANEL = None  # set in main(): backend of the tab's outsourcing section
 KEY = ''
 
 
@@ -155,9 +163,34 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(204)
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Headers', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
         self.end_headers()
 
+    def _same_site(self):
+        """A browser page may change the setting only from the same host as this server (blocks other websites)."""
+        origin = self.headers.get('Origin')
+        if not origin:
+            return True
+        host = (self.headers.get('Host') or '').rsplit(':', 1)[0].strip('[]')
+        return (urlparse(origin).hostname or '') == host
+
+    def do_POST(self):
+        if self.path.split('?')[0] != '/helper' or PANEL is None:
+            return self._send(404, '{}')
+        if not self._same_site():
+            return self._send(403, json.dumps({'error': 'cross-site request refused'}))
+        try:
+            n = min(int(self.headers.get('Content-Length') or 0), 2048)
+            PANEL.update(json.loads(self.rfile.read(n) or b'{}'))
+            self._send(200, json.dumps(PANEL.state()))
+        except ValueError as e:
+            self._send(400, json.dumps({'error': str(e)}))
+        except Exception as e:
+            self._send(500, json.dumps({'error': type(e).__name__}))
+
     def do_GET(self):
+        if self.path.split('?')[0] == '/helper' and PANEL is not None:
+            return self._send(200, json.dumps(PANEL.state()))
         if self.path.split('?')[0] in ('/stats', '/'):
             try:
                 self._send(200, json.dumps(stats()))
@@ -168,12 +201,15 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main():
-    global LLAMA, KEY
+    global LLAMA, KEY, PANEL
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     ap.add_argument('--host', default='127.0.0.1', help='bind address (use 0.0.0.0 to reach it from a phone on your LAN)')
     ap.add_argument('--port', type=int, default=8001)
     ap.add_argument('--llama', default=LLAMA, help='llama-server base URL')
+    ap.add_argument('--outsource-dir', default=os.environ.get('OUTSOURCE_DIR') or str(Path.home() / '.dsh' / 'outsource'),
+                    help='data folder shared with the dsh-compaction-outsource plugin (default: ~/.dsh/outsource)')
     args = ap.parse_args()
+    PANEL = Panel(args.outsource_dir) if Panel else None
     LLAMA = args.llama.rstrip('/')
     KEY = load_key()
     ThreadingHTTPServer((args.host, args.port), Handler).serve_forever()
