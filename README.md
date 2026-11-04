@@ -120,6 +120,7 @@ MIT, see [LICENSE](LICENSE).
 | GPU | 使用率、VRAM、溫度、功耗 | `nvidia-smi` |
 | 記憶體 | RAM、已認可記憶體（RAM + 分頁檔） | 作業系統 |
 | DeepSeek 帳號 | 餘額，以及開啟分頁後的變化 | DSH 自己的帳號服務（`getBalance`） |
+| 外包 | 選擇由哪個 AI（agy / DeepSeek / Claude / Codex）、用什麼模型與思考強度來寫壓縮檢查點；顯示用量與最近一次由誰寫 | 搭配插件 [dsh-compaction-outsource](https://github.com/avery02072003-cmyk/dsh-compaction-outsource) |
 
 生成速度、提示處理速度、KV 用量需要 `llama-server` 加 `--metrics` 啟動。
 GPU 和記憶體是你這台電腦的數字，只對**本地**模型有意義；DeepSeek 雲端模型沒有對應的 GPU / RAM 可顯示，所以只顯示帳號餘額。
@@ -128,12 +129,26 @@ GPU 和記憶體是你這台電腦的數字，只對**本地**模型有意義；
 
 * 外掛（`lib/`）是**純前端**的 DSH 外掛：在右側欄註冊一種分頁和內容，不在 DSH 主機端執行任何東西。
 * `server/monitor_server.py` 是只讀的小型 HTTP 服務（只用 Python 標準函式庫），提供 `GET /stats`。API 金鑰只留在這個程序內，不會回傳。
-* 分頁會向 `http://<網頁主機>:8001/stats` 取資料，所以用手機透過區網開 DSH 網頁版也能看。
+* 分頁會向 `http://<網頁主機>:8001/stats` 取資料，所以用手機透過區網開 DSH 網頁版也能看。要改網址，可在瀏覽器主控台執行 `localStorage.setItem('dsh-llm-monitor.url', 'http://host:port/stats')`。
+
+```
+ DSH 前端（瀏覽器／桌面 app）
+   └─ lib/（側欄分頁，每 2 秒輪詢）──HTTP──►  server/monitor_server.py ──► llama-server、nvidia-smi、作業系統
+   └─ DeepSeek 餘額  ◄── ctx.remote.account.getBalance（DSH 自己的帳號服務，不需另外登入）
+```
 
 ### 安裝
 
 1. **從 DSH 的插件頁安裝**（網頁版、桌面版都有）：左側欄「插件」→「添加插件」→ 貼上 `https://github.com/avery02072003-cmyk/dsh-llm-monitor` →「安装」→ 完成後按「立即启用」。DSH 會自動把外掛加進設定檔，不用手動改任何檔案。
-2. 啟動服務（分頁的數字從這裡來）：`python server/monitor_server.py`（要讓手機連，加 `--host 0.0.0.0`；`llama-server` 有設 `--api-key` 的話，先設定環境變數 `LLAMA_API_KEY` 或 `LLAMA_API_KEY_FILE`）。`server/` 資料夾在本倉庫裡（clone 或下載 ZIP）。
+2. 啟動服務（分頁的數字從這裡來）。需求：DSH、Python 3.8+、執行中的 `llama-server`（`nvidia-smi` 可選）。`server/` 資料夾在本倉庫裡（clone 或下載 ZIP）：
+
+   ```bash
+   python server/monitor_server.py                    # 127.0.0.1:8001 -> 連到 127.0.0.1:8000 的 llama-server
+   python server/monitor_server.py --host 0.0.0.0     # 區網內其他裝置也能連
+   python server/monitor_server.py --llama http://127.0.0.1:8080 --port 8001
+   ```
+
+   `llama-server` 有設 `--api-key` 的話，先設定環境變數 `LLAMA_API_KEY` 或 `LLAMA_API_KEY_FILE`；要看速度與 KV 快取，`llama-server` 需加 `--metrics`。
 3. 打開任一對話 → 右上角點側欄按鈕 → 選「本地模型監控」卡片；分頁被關掉時，按分頁列的 **＋** 即可再打開。
 
 > 沒有啟動服務時分頁仍可開啟，DeepSeek 餘額照常顯示，本地模型區塊會顯示「離線」。更新外掛後請重啟一次 DSH（伺服器啟動時就會快取前端程式）。
@@ -147,12 +162,27 @@ GPU 和記憶體是你這台電腦的數字，只對**本地**模型有意義；
 4. 重新啟動 DSH。
 </details>
 
+### 外包區塊（選用）
+
+再安裝 [dsh-compaction-outsource](https://github.com/avery02072003-cmyk/dsh-compaction-outsource)，分頁就會多出**外包**區塊：切換幫忙的 AI、選模型與思考強度，並看到最近一次壓縮是誰寫的。**預設關閉。** 服務與該插件讀寫同一個資料夾（`--outsource-dir`，預設 `~/.dsh/outsource`）。從瀏覽器改設定時，只接受與服務同一主機的來源。
+
+### 解除安裝
+
+「插件」→ 在已安裝清單找到 *dsh-llm-monitor* → 解除安裝，並停止 `monitor_server.py`。
+
 ### 注意事項
 
 * 服務沒有身分驗證，預設只綁 `127.0.0.1`；只有在你信任的區網才用 `--host 0.0.0.0`。
 * 輸出不含 API 金鑰，但包含顯卡型號、記憶體大小與模型名稱。
 * DeepSeek 餘額是由你自己 DSH 內已登入的帳號服務讀取，本專案不會取得或保存你的憑證。
 
+### 已知限制
+
+* 外掛向帳號服務傳的用戶端版本是 `0.2.1-rc.5`；其他 DSH 版本可能需要更新 `lib/client.js` 裡的這個字串。
+* 餘額請求偶爾會暫時失敗；分頁每 60 秒重試一次。
+* GPU 數據需要 NVIDIA 顯卡且 `nvidia-smi` 在 `PATH` 內。
+* 外掛內部用到的 `sidebarRightTabs`、`slots`、`remote.account` 都是 DSH 前端 API，可能隨版本變動。
+
 ### 授權
 
-MIT。
+MIT，見 [LICENSE](LICENSE)。
