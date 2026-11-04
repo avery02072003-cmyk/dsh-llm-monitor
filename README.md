@@ -24,11 +24,11 @@ GPU and memory numbers describe your machine, so they only make sense for a **lo
 
 ```
  DSH client (browser / desktop app)
-   └─ plugin/  (sidebar tab, polls every 2 s) ──HTTP──►  server/monitor_server.py ──► llama-server, nvidia-smi, OS
+   └─ lib/  (sidebar tab, polls every 2 s) ──HTTP──►  server/monitor_server.py ──► llama-server, nvidia-smi, OS
    └─ DeepSeek balance  ◄── ctx.remote.account.getBalance  (DSH's own account remote, no extra login)
 ```
 
-* `plugin/` is a **client-only** DSH plugin: it registers a tab type in the right sidebar and a pane body. Nothing runs on the DSH host.
+* The plugin (`lib/`) is **client-only** DSH plugin: it registers a tab type in the right sidebar and a pane body. Nothing runs on the DSH host.
 * `server/monitor_server.py` is a tiny read-only HTTP server (Python standard library only) exposing `GET /stats`.
   The llama-server API key (if you use one) stays inside this process and is never returned.
 * The tab fetches `http://<page host>:8001/stats`, so it also works from a phone that opens your DSH web client over the LAN.
@@ -36,9 +36,18 @@ GPU and memory numbers describe your machine, so they only make sense for a **lo
 
 ## Install
 
-Requirements: DSH, Python 3.8+, a running `llama-server`; optional: `nvidia-smi`.
+Requirements: DSH, Python 3.8+ and a running `llama-server` (optional: `nvidia-smi`).
 
-**1. Start the server**
+**1. Install the plugin from DSH's Plugins page** (web or desktop)
+
+1. Open **Plugins** in the left sidebar → **Add plugin** (添加插件).
+2. Paste this address and press **Install**:
+   ```
+   https://github.com/avery02072003-cmyk/dsh-llm-monitor
+   ```
+3. When it says *Installed*, press **Enable now**. That's it: DSH adds the plugin to the profile for you, no file editing.
+
+**2. Start the monitor server** (the tab reads its numbers from it)
 
 ```bash
 python server/monitor_server.py                    # 127.0.0.1:8001 -> llama-server at 127.0.0.1:8000
@@ -46,36 +55,32 @@ python server/monitor_server.py --host 0.0.0.0     # also reachable from other d
 python server/monitor_server.py --llama http://127.0.0.1:8080 --port 8001
 ```
 
-If `llama-server` uses `--api-key`, set `LLAMA_API_KEY` (or `LLAMA_API_KEY_FILE`) in the environment before starting the server.
-Start `llama-server` with `--metrics` to get speed and KV-cache numbers.
-
-**2. Install the plugin into a DSH profile**
-
-A DSH profile lives in `~/.dsh/profiles/<name>/` (for example `web`, `desktop`, or one you created).
-
-1. **Back up** the profile's `package.json` and `cordis.patch.yml`.
-2. Copy this repository's `plugin/` folder to `~/.dsh/profiles/<name>/node_modules/dsh-llm-monitor/`.
-3. Add it to the profile's `package.json` dependencies (so a later install does not prune it):
-   ```json
-   "dependencies": { "dsh-llm-monitor": "file:/absolute/path/to/dsh-llm-monitor/plugin" }
-   ```
-4. Append this to the profile's `cordis.patch.yml`:
-   ```yaml
-   - insert:
-       - id: llm-monitor
-         name: dsh-llm-monitor
-   ```
-5. Restart that DSH (web server or desktop app). The server caches client bundles at start-up, so a restart is required after every plugin update.
+If `llama-server` uses `--api-key`, set `LLAMA_API_KEY` (or `LLAMA_API_KEY_FILE`) in the environment first. Start `llama-server` with `--metrics` to get speed and KV-cache numbers. The `server/` folder is in this repository (clone it or download the ZIP).
 
 **3. Open it**
 
 Open any conversation → click the sidebar button at the top right → pick the **Local model monitor** card (or press **+** on the sidebar tab strip and pick it).
 
-> The `desktop` profile is managed by the desktop app. Edit it only with the app closed, keep your backups, and expect an app update to possibly rewrite it.
+> Without the server the tab still opens and the DeepSeek balance still works; the local-model sections show "offline".
+> The DSH Plugins page installs into the profile you are running. After an update, restart DSH once: the server caches client bundles at start-up.
+> Verified on the DSH web client; the desktop app uses the same Plugins page.
+
+<details><summary>Manual install (only if the Plugins page is not available)</summary>
+
+1. Back up the profile's `package.json` and `cordis.patch.yml` (`~/.dsh/profiles/<name>/`).
+2. Add `"dsh-llm-monitor": "file:/absolute/path/to/dsh-llm-monitor"` to its `package.json` dependencies and copy this repository to `node_modules/dsh-llm-monitor/`.
+3. Append to `cordis.patch.yml`:
+   ```yaml
+   - insert:
+       - id: llm-monitor
+         name: dsh-llm-monitor
+   ```
+4. Restart DSH.
+</details>
 
 ## Uninstall
 
-Remove the `- insert:` block you added, delete `node_modules/dsh-llm-monitor` and the dependency line, then restart DSH.
+**Plugins** → find *dsh-llm-monitor* under installed plugins → uninstall. Stop `monitor_server.py`.
 
 ## Security notes
 
@@ -116,25 +121,26 @@ GPU 和記憶體是你這台電腦的數字，只對**本地**模型有意義；
 
 ### 運作方式
 
-* `plugin/` 是**純前端**的 DSH 外掛：在右側欄註冊一種分頁和內容，不在 DSH 主機端執行任何東西。
+* 外掛（`lib/`）是**純前端**的 DSH 外掛：在右側欄註冊一種分頁和內容，不在 DSH 主機端執行任何東西。
 * `server/monitor_server.py` 是只讀的小型 HTTP 服務（只用 Python 標準函式庫），提供 `GET /stats`。API 金鑰只留在這個程序內，不會回傳。
 * 分頁會向 `http://<網頁主機>:8001/stats` 取資料，所以用手機透過區網開 DSH 網頁版也能看。
 
 ### 安裝
 
-1. 啟動服務：`python server/monitor_server.py`（要讓手機連，加 `--host 0.0.0.0`；`llama-server` 有設 `--api-key` 的話，先設定環境變數 `LLAMA_API_KEY` 或 `LLAMA_API_KEY_FILE`）。
-2. **先備份**要安裝的 DSH 設定檔（`~/.dsh/profiles/<名稱>/` 裡的 `package.json`、`cordis.patch.yml`）。
-3. 把本專案的 `plugin/` 複製到 `~/.dsh/profiles/<名稱>/node_modules/dsh-llm-monitor/`，在 `package.json` 的 `dependencies` 加上 `"dsh-llm-monitor": "file:/你的路徑/dsh-llm-monitor/plugin"`。
-4. 在 `cordis.patch.yml` 最後加上：
-   ```yaml
-   - insert:
-       - id: llm-monitor
-         name: dsh-llm-monitor
-   ```
-5. 重新啟動該 DSH（每次更新外掛都要重啟，因為伺服器啟動時就會快取前端程式）。
-6. 打開任一對話 → 右上角點側欄按鈕 → 選「本地模型監控」卡片；分頁被關掉時，按分頁列的 **＋** 即可再打開。
+1. **從 DSH 的插件頁安裝**（網頁版、桌面版都有）：左側欄「插件」→「添加插件」→ 貼上 `https://github.com/avery02072003-cmyk/dsh-llm-monitor` →「安装」→ 完成後按「立即启用」。DSH 會自動把外掛加進設定檔，不用手動改任何檔案。
+2. 啟動服務（分頁的數字從這裡來）：`python server/monitor_server.py`（要讓手機連，加 `--host 0.0.0.0`；`llama-server` 有設 `--api-key` 的話，先設定環境變數 `LLAMA_API_KEY` 或 `LLAMA_API_KEY_FILE`）。`server/` 資料夾在本倉庫裡（clone 或下載 ZIP）。
+3. 打開任一對話 → 右上角點側欄按鈕 → 選「本地模型監控」卡片；分頁被關掉時，按分頁列的 **＋** 即可再打開。
 
-> 桌面版的 `desktop` 設定檔由桌面 app 管理：請在 app 關閉時修改、保留備份，app 更新後可能被改寫。
+> 沒有啟動服務時分頁仍可開啟，DeepSeek 餘額照常顯示，本地模型區塊會顯示「離線」。更新外掛後請重啟一次 DSH（伺服器啟動時就會快取前端程式）。
+> 已在 DSH 網頁版實測；桌面版使用同一個插件頁。
+
+<details><summary>手動安裝（插件頁用不了才需要）</summary>
+
+1. 先備份 `~/.dsh/profiles/<名稱>/` 裡的 `package.json`、`cordis.patch.yml`。
+2. 把本倉庫複製到 `node_modules/dsh-llm-monitor/`，並在 `package.json` 的 `dependencies` 加上 `"dsh-llm-monitor": "file:/你的路徑/dsh-llm-monitor"`。
+3. 在 `cordis.patch.yml` 最後加上 `- insert:` → `- id: llm-monitor` / `name: dsh-llm-monitor`。
+4. 重新啟動 DSH。
+</details>
 
 ### 注意事項
 

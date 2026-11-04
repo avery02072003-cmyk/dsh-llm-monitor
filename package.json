@@ -11,9 +11,17 @@
     "./package.json": "./package.json"
   },
   "files": [
-    "lib"
+    "lib",
+    "cordis.patch.yml",
+    "server",
+    "README.md",
+    "LICENSE"
   ],
   "dsh": {
+    "manifestVersion": 1,
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
     "client": {
       "platform": "web",
       "inject": [
@@ -33,5 +41,6 @@
     "llama.cpp",
     "monitor",
     "plugin"
-  ]
+  ],
+  "homepage": "https://github.com/avery02072003-cmyk/dsh-llm-monitor"
 }

@@ -1,0 +1,4 @@
+# Bundle patch layer: mounts the sidebar monitor tab (client-only plugin, nothing runs on the DSH host).
+- insert:
+    - id: llm-monitor
+      name: dsh-llm-monitor
