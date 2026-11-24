@@ -87,6 +87,29 @@ The model box is a drop-down that always lists every choice, each with a short d
 
 The tab follows your browser language (繁體中文 / 简体中文 / English) and has a language picker at the bottom. To add a language, copy the `en` table at the top of `lib/client.js`, translate it and register it in `LANG_NAMES`.
 
+## Live speed and prompt progress
+
+The **Local model** section shows generation speed and prompt-processing speed three ways: **live** (shows `0.0 tok/s` when idle, so you can tell it is not running), **last reply** (held after a reply ends) and **overall average**. Some `llama-server` builds only update their counters when a request ends; then the live row shows how long the job has been working, and (if you pass `--llama-log`) the prompt-processing progress read from the end of `llama-server`'s stderr log:
+
+```bash
+python server/monitor_server.py --llama-log /path/to/llama-server.err
+# or: LLAMA_LOG_FILE=/path/to/llama-server.err
+```
+
+## Vision switch (optional)
+
+If you start `llama-server` with an image projector only when a marker file exists (for example `if exists vision.on then add --mmproj ...`), the tab can turn vision (image input) on and off for you, so you only pay its extra RAM when you need it. Give the server the marker file and a command that restarts `llama-server` so it re-reads that file:
+
+```bash
+python server/monitor_server.py --vision-flag /path/to/vision.on --vision-restart-cmd "powershell -File restart-model.ps1"
+# or: VISION_FLAG_FILE=... VISION_RESTART_CMD=...
+```
+
+The **Local model** section then shows a **Vision** row with the real state of the running model (read from `/props`) and a button. Pressing it asks for confirmation (the model restarts, which takes about 30–60 s, the KV cache is cleared and a running chat is interrupted), then creates or removes the marker file and runs your restart command in the background. A change is refused while the model is working or already restarting. Without both options the row and the `/vision` endpoint do not exist.
+
+* `POST /vision` accepts `{"on": true|false}` **only from this computer**: the client must be loopback, the `Host` header must be `127.0.0.1` / `localhost` / `::1`, and a browser `Origin` must match it. LAN clients and other websites get `403`.
+* Windows tip: start the restart command with `CREATE_NO_WINDOW` and a new process group (the server does this). Do not combine `CREATE_NO_WINDOW` with `DETACHED_PROCESS`: PowerShell then exits immediately without running your script.
+
 ## Uninstall
 
 **Plugins** → find *dsh-llm-monitor* under installed plugins → uninstall. Stop `monitor_server.py`.
@@ -173,6 +196,29 @@ GPU 和記憶體是你這台電腦的數字，只對**本地**模型有意義；
 模型欄是一個永遠列出全部選項的下拉選單，每項附簡短說明（例如 `gemini-3.8-flash-low — 最快、最輕量`、`Haiku — 最新的 Haiku：最省`），另有「**自訂…**」可填任何其他代號。agy 的清單就是 `agy models` 印出來的。Claude（Haiku／Sonnet／Opus）與 DeepSeek Flash 只顯示名稱並標註「最新」、不寫版本號，因為它們永遠指向該系列最新的模型，更新後畫面上就不會留著過時的數字。
 
 分頁會跟隨瀏覽器語言（繁體中文／简体中文／English），底部有語言選單。要新增語言：複製 `lib/client.js` 開頭的 `en` 表、翻譯後登記到 `LANG_NAMES`。
+
+### 即時速度與提示處理進度
+
+「本地模型」區塊的生成速度與提示處理速度各有三列：**即時**（閒置時固定顯示 `0.0 tok/s`，可確認它有沒有在動）、**上次回覆**（回覆結束後保留）、**整體平均**。部分 `llama-server` 版本只在請求結束時才更新計數；這時即時列會顯示「已處理 N 秒」，若再加上 `--llama-log`，還會從 `llama-server` 的 stderr 日誌尾端讀取提示處理進度：
+
+```bash
+python server/monitor_server.py --llama-log /path/to/llama-server.err
+# 或：LLAMA_LOG_FILE=/path/to/llama-server.err
+```
+
+### 視覺開關（選用）
+
+如果你的 `llama-server` 只在某個標記檔存在時才載入圖像投影模組（例如「`vision.on` 存在就加上 `--mmproj ...`」），分頁就能幫你開關視覺（讀圖），需要時才付出多佔的記憶體。啟動服務時指定標記檔，以及一個會重啟 `llama-server`、讓它重新讀取標記檔的指令：
+
+```bash
+python server/monitor_server.py --vision-flag /path/to/vision.on --vision-restart-cmd "powershell -File restart-model.ps1"
+# 或：VISION_FLAG_FILE=... VISION_RESTART_CMD=...
+```
+
+「本地模型」區塊會多一列**視覺**，顯示執行中模型的實際狀態（從 `/props` 讀取）與一個按鈕。按下去會先要你確認（模型會重啟，約 30～60 秒，KV 快取清空，進行中的對話會中斷），確認後建立或刪除標記檔，並在背景執行你的重啟指令。模型正在處理請求或已在重啟時會拒絕切換。兩個選項沒有同時設定時，這一列與 `/vision` 端點都不存在。
+
+* `POST /vision` 接受 `{"on": true|false}`，**只限本機**：連線必須來自本機迴路位址、`Host` 標頭必須是 `127.0.0.1`／`localhost`／`::1`，瀏覽器的 `Origin` 也必須與之相符；區網裝置與其他網站一律回 `403`。
+* Windows 提醒：重啟指令請用 `CREATE_NO_WINDOW` 加獨立程序群組（本服務就是這樣做）。不要把 `CREATE_NO_WINDOW` 與 `DETACHED_PROCESS` 併用，否則 PowerShell 會直接結束、不執行你的腳本。
 
 ### 解除安裝
 

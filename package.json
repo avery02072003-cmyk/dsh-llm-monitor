@@ -1,6 +1,6 @@
 {
   "name": "dsh-llm-monitor",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Right-sidebar tab for DeepSeek Harness (DSH): local llama-server speed, GPU, memory and DeepSeek account balance.",
   "type": "module",
   "license": "MIT",
