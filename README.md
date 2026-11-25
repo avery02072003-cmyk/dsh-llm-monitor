@@ -16,7 +16,7 @@ English | [繁體中文](#繁體中文)
 | GPU | utilization, VRAM, temperature, power | `nvidia-smi` |
 | Memory | RAM, committed memory (RAM + page file) | OS |
 | DeepSeek account | balance, and the change since you opened the tab | DSH's own account service (`getBalance`) |
-| Outsourcing | choose which AI (agy / DeepSeek / Claude / Codex), its model and reasoning effort writes your compaction checkpoint; usage and who wrote the last one | companion plugin [dsh-compaction-outsource](https://github.com/avery02072003-cmyk/dsh-compaction-outsource) |
+| Outsourcing | choose which AI (agy / DeepSeek / Claude / Codex), its model and reasoning effort writes your compaction checkpoint; usage and who wrote the last one | companion plugin [dsh-compaction-outsource](https://github.com/avery-404/dsh-compaction-outsource) |
 
 Generation / prompt speed and KV-cache usage need `llama-server` to be started with `--metrics`.
 GPU and memory numbers describe your machine, so they only make sense for a **local** model; the DeepSeek (cloud) model has no GPU/RAM to show.
@@ -44,7 +44,7 @@ Requirements: DSH, Python 3.8+ and a running `llama-server` (optional: `nvidia-s
 1. Open **Plugins** in the left sidebar → **Add plugin** (添加插件).
 2. Paste this address and press **Install**:
    ```
-   https://github.com/avery02072003-cmyk/dsh-llm-monitor
+   https://github.com/avery-404/dsh-llm-monitor
    ```
 3. When it says *Installed*, press **Enable now**. That's it: DSH adds the plugin to the profile for you, no file editing.
 
@@ -81,7 +81,7 @@ Open any conversation → click the sidebar button at the top right → pick the
 
 ## Outsourcing section (optional)
 
-Install [dsh-compaction-outsource](https://github.com/avery02072003-cmyk/dsh-compaction-outsource) as well and the tab gets an **Outsourcing** section: switch the helper AI, pick its model and effort, and see which AI wrote the last compaction. It is **off by default**. The server reads and writes the same data folder as that plugin (`--outsource-dir`, default `~/.dsh/outsource`). Changing the setting from a browser is only accepted from the same host as the server.
+Install [dsh-compaction-outsource](https://github.com/avery-404/dsh-compaction-outsource) as well and the tab gets an **Outsourcing** section: switch the helper AI, pick its model and effort, and see which AI wrote the last compaction. It is **off by default**. The server reads and writes the same data folder as that plugin (`--outsource-dir`, default `~/.dsh/outsource`). Changing the setting from a browser is only accepted from the same host as the server.
 
 The model box is a drop-down that always lists every choice, each with a short description (for example `gemini-3.8-flash-low — fastest, lightest`, `Haiku — Newest Haiku: cheapest`), plus **Custom…** for any other id. The agy list is what `agy models` prints. The Claude entries (Haiku / Sonnet / Opus) and DeepSeek Flash are shown by name and marked "newest" instead of a version number, because they always point to the newest model of that family, so an update never leaves a stale number on screen.
 
@@ -147,7 +147,7 @@ MIT, see [LICENSE](LICENSE).
 | GPU | 使用率、VRAM、溫度、功耗 | `nvidia-smi` |
 | 記憶體 | RAM、已認可記憶體（RAM + 分頁檔） | 作業系統 |
 | DeepSeek 帳號 | 餘額，以及開啟分頁後的變化 | DSH 自己的帳號服務（`getBalance`） |
-| 外包 | 選擇由哪個 AI（agy / DeepSeek / Claude / Codex）、用什麼模型與思考強度來寫壓縮檢查點；顯示用量與最近一次由誰寫 | 搭配插件 [dsh-compaction-outsource](https://github.com/avery02072003-cmyk/dsh-compaction-outsource) |
+| 外包 | 選擇由哪個 AI（agy / DeepSeek / Claude / Codex）、用什麼模型與思考強度來寫壓縮檢查點；顯示用量與最近一次由誰寫 | 搭配插件 [dsh-compaction-outsource](https://github.com/avery-404/dsh-compaction-outsource) |
 
 生成速度、提示處理速度、KV 用量需要 `llama-server` 加 `--metrics` 啟動。
 GPU 和記憶體是你這台電腦的數字，只對**本地**模型有意義；DeepSeek 雲端模型沒有對應的 GPU / RAM 可顯示，所以只顯示帳號餘額。
@@ -166,7 +166,7 @@ GPU 和記憶體是你這台電腦的數字，只對**本地**模型有意義；
 
 ### 安裝
 
-1. **從 DSH 的插件頁安裝**（網頁版、桌面版都有）：左側欄「插件」→「添加插件」→ 貼上 `https://github.com/avery02072003-cmyk/dsh-llm-monitor` →「安装」→ 完成後按「立即启用」。DSH 會自動把外掛加進設定檔，不用手動改任何檔案。
+1. **從 DSH 的插件頁安裝**（網頁版、桌面版都有）：左側欄「插件」→「添加插件」→ 貼上 `https://github.com/avery-404/dsh-llm-monitor` →「安装」→ 完成後按「立即启用」。DSH 會自動把外掛加進設定檔，不用手動改任何檔案。
 2. 啟動服務（分頁的數字從這裡來）。需求：DSH、Python 3.8+、執行中的 `llama-server`（`nvidia-smi` 可選）。`server/` 資料夾在本倉庫裡（clone 或下載 ZIP）：
 
    ```bash
@@ -191,7 +191,7 @@ GPU 和記憶體是你這台電腦的數字，只對**本地**模型有意義；
 
 ### 外包區塊（選用）
 
-再安裝 [dsh-compaction-outsource](https://github.com/avery02072003-cmyk/dsh-compaction-outsource)，分頁就會多出**外包**區塊：切換幫忙的 AI、選模型與思考強度，並看到最近一次壓縮是誰寫的。**預設關閉。** 服務與該插件讀寫同一個資料夾（`--outsource-dir`，預設 `~/.dsh/outsource`）。從瀏覽器改設定時，只接受與服務同一主機的來源。
+再安裝 [dsh-compaction-outsource](https://github.com/avery-404/dsh-compaction-outsource)，分頁就會多出**外包**區塊：切換幫忙的 AI、選模型與思考強度，並看到最近一次壓縮是誰寫的。**預設關閉。** 服務與該插件讀寫同一個資料夾（`--outsource-dir`，預設 `~/.dsh/outsource`）。從瀏覽器改設定時，只接受與服務同一主機的來源。
 
 模型欄是一個永遠列出全部選項的下拉選單，每項附簡短說明（例如 `gemini-3.8-flash-low — 最快、最輕量`、`Haiku — 最新的 Haiku：最省`），另有「**自訂…**」可填任何其他代號。agy 的清單就是 `agy models` 印出來的。Claude（Haiku／Sonnet／Opus）與 DeepSeek Flash 只顯示名稱並標註「最新」、不寫版本號，因為它們永遠指向該系列最新的模型，更新後畫面上就不會留著過時的數字。
 

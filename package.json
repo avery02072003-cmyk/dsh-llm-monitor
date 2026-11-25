@@ -30,10 +30,10 @@
       ]
     }
   },
-  "author": "avery02072003-cmyk",
+  "author": "avery-404",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/avery02072003-cmyk/dsh-llm-monitor.git"
+    "url": "git+https://github.com/avery-404/dsh-llm-monitor.git"
   },
   "keywords": [
     "dsh",
@@ -42,5 +42,5 @@
     "monitor",
     "plugin"
   ],
-  "homepage": "https://github.com/avery02072003-cmyk/dsh-llm-monitor"
+  "homepage": "https://github.com/avery-404/dsh-llm-monitor"
 }
